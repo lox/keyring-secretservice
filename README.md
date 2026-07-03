@@ -1,6 +1,6 @@
 keyring-secretservice
 =====================
-[![CI](https://github.com/lox/keyring-secretservice/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/lox/keyring-secretservice/actions/workflows/test.yml)
+[![CI](https://github.com/lox/keyring-secretservice/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/lox/keyring-secretservice/actions/workflows/test.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/lox/keyring-secretservice.svg)](https://pkg.go.dev/github.com/lox/keyring-secretservice)
 
 Secret Service provider for [`github.com/lox/keyring/v2`](https://github.com/lox/keyring).
