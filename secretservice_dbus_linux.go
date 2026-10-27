@@ -4,6 +4,7 @@
 package secretservice
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/godbus/dbus"
@@ -315,13 +316,24 @@ func (prompt *secretPrompt) Prompt() (*dbus.Variant, error) {
 	prompt.conn.Signal(c)
 	defer prompt.conn.RemoveSignal(c)
 
+	matchRule := "type='signal',interface='org.freedesktop.Secret.Prompt',member='Completed',path='" + string(prompt.Path()) + "'"
+	if err := prompt.conn.BusObject().Call("org.freedesktop.DBus.AddMatch", 0, matchRule).Store(); err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = prompt.conn.BusObject().Call("org.freedesktop.DBus.RemoveMatch", 0, matchRule).Store()
+	}()
+
 	err := prompt.dbus.Call("org.freedesktop.Secret.Prompt.Prompt", 0, "").Store()
 	if err != nil {
 		return nil, err
 	}
 
 	for {
-		if result := <-c; result.Path == prompt.Path() {
+		if result := <-c; result.Path == prompt.Path() && result.Name == "org.freedesktop.Secret.Prompt.Completed" {
+			if dismissed, ok := result.Body[0].(bool); ok && dismissed {
+				return nil, errors.New("prompt dismissed")
+			}
 			value := result.Body[1].(dbus.Variant)
 			return &value, nil
 		}
